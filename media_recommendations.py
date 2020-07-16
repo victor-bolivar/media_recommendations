@@ -1,4 +1,12 @@
-'''This project will take you through the process of mashing up data from two different APIs to make movie recommendations. The TasteDive API lets you provide a movie (or bands, TV shows, etc.) as a query input, and returns a set of related items. The OMDB API lets you provide a movie title as a query input and get back data about the movie, including scores from various review sites (Rotten Tomatoes, IMDB, etc.).
+import requests
+import json
+
+'''
+author : Victor Bolivar De la Cruz
+date : 15/07/2020
+
+DESCRIPTION OF THE PROJECT:
+This project will take you through the process of mashing up data from two different APIs to make movie recommendations. The TasteDive API lets you provide a movie (or bands, TV shows, etc.) as a query input, and returns a set of related items. The OMDB API lets you provide a movie title as a query input and get back data about the movie, including scores from various review sites (Rotten Tomatoes, IMDB, etc.).
 
 You will put those two together. You will use TasteDive to get related movies for a whole list of titles. You’ll combine the resulting lists of related movies, and sort them according to their Rotten Tomatoes scores (which will require making API calls to the OMDB API.)
 
@@ -6,12 +14,11 @@ To avoid problems with rate limits and site accessibility, we have provided a ca
 
 Your first task will be to fetch data from TasteDive. The documentation for the API is at https://tastedive.com/read/api. '''
 
-## TO FIX
+## To-do list
 # 1. Replace requests_with_caching for requests
 # 2. Add an API key 
 
-import requests
-import json
+
 
 def get_movies_from_tastedive(name):
 	# returs 5 TasteDive results (movies) socciated with the string 'name'
