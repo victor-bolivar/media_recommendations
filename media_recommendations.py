@@ -14,15 +14,13 @@ To avoid problems with rate limits and site accessibility, we have provided a ca
 
 Your first task will be to fetch data from TasteDive. The documentation for the API is at https://tastedive.com/read/api. '''
 
-## To-do list
-# 1. Replace requests_with_caching for requests
-# 2. Add an API key 
+# To-do :
+# 3. Handle exeptions
 
 
 
 def get_movies_from_tastedive(name):
-	# returs 5 TasteDive results (movies) socciated with the string 'name'
-	# in the form a dictionary with just one key : 'Similar'
+	# returs a list of 5 TasteDive results (movies) asocciated with the string 'name'
 	
 	max_number_of_results = '5'
 	base_url = 'https://tastedive.com/api/similar'
@@ -30,6 +28,7 @@ def get_movies_from_tastedive(name):
 	parameters['q'] = name
 	parameters['type'] = 'movies'
 	parameters['limit'] = max_number_of_results
+	parameters['k'] = "379008-MediaRec-181Q92H8"
 
 	res = requests.get(base_url, params=parameters)
 	res.raise_for_status()
@@ -40,7 +39,7 @@ def get_movies_from_tastedive(name):
 		result.append(data['Similar']['Results'][index]['Name'])
 	return result
 
-def get_related_titles(movies):
+def get_5_related_titles_for_each(movies):
 	# takes a list of movie titles as input. It gets five related movies for each from TasteDive, extracts the titles for all of them, and combines them all into a single list.
 	related_movies = []
 	for movie in movies :
@@ -48,7 +47,9 @@ def get_related_titles(movies):
 	return list(set(related_movies))
 
 def get_movie_data(movie):
-	base_url = 'http://www.omdbapi.com/' #add API key
+	# returns a dictionary with data of the movie
+	key = '58dc3550'
+	base_url = 'http://www.omdbapi.com/?apikey='+key+'&'
 	parameters = {}
 	parameters['t'] = movie
 	parameters['r'] = 'json'
@@ -56,22 +57,28 @@ def get_movie_data(movie):
 	return res.json()
 
 def get_movie_rating(data):
-	#  It takes an OMDB dictionary result for one movie and extracts the Rotten Tomatoes rating as an integer. For example, if given the OMDB dictionary for “Black Panther”, it would return 97. If there is no Rotten Tomatoes rating, return 0.
-    if 'Rotten Tomatoes' in data['Ratings'][1].values():
-    	return int(data['Ratings'][1]['Value'][:-1])
-    else:
-    	return 0
+	# returns the RottenTomatoes Rating form the movie data dictionary
+	# It takes an OMDB dictionary for one movie and extracts the Rotten Tomatoes rating. For example, if given the OMDB dictionary for “Black Panther”, it would return 97. If there is no Rotten Tomatoes rating, return 0.
+	for ratings in data['Ratings']:
+		if ratings['Source'] == 'Rotten Tomatoes' :
+			return ratings['Value']
+	return 0
 
 def get_sorted_recommendations(movies):
 	# It returns a sorted list of related movie titles as output
-	related = get_related_titles(movies)
-	ratings = [get_movie_rating(movie) for movie in movies]
+	ratings = [get_movie_rating(get_movie_data(movie)) for movie in movies]
+
 	movies_info = {}
-	for (rating, movie) in list(zip(ratings, related)):
+	for (rating, movie) in list(zip(ratings, movies)):
 		movies_info[rating] = movie
+
 	sorted_list_movies_rating = sorted(movies_info.items(), reverse=True)
 	return [movie_tuple[1] for movie_tuple in sorted_list_movies_rating] 
 
 
-rating = get_movie_rating(get_movie_data('Black Panther'))
+if __name__ == "__main__":
+	movie = 'Black Panther'
+	print('Movie :', movie)
+	print('Rating :', get_movie_rating(get_movie_data(movie)))
+	print('Sorted Recommendations :', get_sorted_recommendations(get_movies_from_tastedive(movie)))
 
